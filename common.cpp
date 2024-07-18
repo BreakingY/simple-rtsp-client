@@ -154,12 +154,18 @@ bool ParseRTSPUrl(const std::string& rtsp_url, RTSPUrlInfo& url_info) {
     return true;
 }
 static bool ParseRTSPLine(const std::string& line, std::string& key, std::string& value) {
-    size_t pos = line.find(": ");
+    size_t pos = line.find(':');
     if (pos == std::string::npos) {
         return false;
     }
     key = line.substr(0, pos);
-    value = line.substr(pos + 2);
+    
+    // 跳过冒号后的所有空格
+    size_t start = pos + 1;
+    while (start < line.size() && std::isspace(line[start])) {
+        ++start;
+    }
+    value = line.substr(start);
 
     return true;
 }
