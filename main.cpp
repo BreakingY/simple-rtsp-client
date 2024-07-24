@@ -1,15 +1,15 @@
 #include <unistd.h>
 #include "rtsp-client.h"
-class RtspWrapper:public RtspMediaInterface{
+class RtspClientProxy:public RtspMediaInterface{
 public:
-    RtspWrapper(char *rtsp_url){
+    RtspClientProxy(char *rtsp_url){
         rtsp_url_ = rtsp_url;
         client_ =  new RtspClient(transport_); 
         client_->Connect(rtsp_url); 
         client_->SetCallBack(this);
-        pthread_create(&tid_, NULL, &RtspWrapper::ReconnectThread, this);
+        pthread_create(&tid_, NULL, &RtspClientProxy::ReconnectThread, this);
     }
-    ~RtspWrapper(){
+    ~RtspClientProxy(){
         run_flag_ = false;
         int ret = pthread_join(tid_, NULL);
         if(ret < 0){
@@ -25,10 +25,10 @@ public:
         if(pcma_fd_){
             fclose(pcma_fd_);
         }
-        std::cout << "~RtspWrapper" << std::endl;
+        std::cout << "~RtspClientProxy" << std::endl;
     }
-    static void * RtspWrapper::ReconnectThread(void *arg){
-        RtspWrapper *self = (RtspWrapper*)arg;
+    static void * RtspClientProxy::ReconnectThread(void *arg){
+        RtspClientProxy *self = (RtspClientProxy*)arg;
         while(self->run_flag_){
            bool stat = self->client_->GetOpenStat();
            if(stat == false){
@@ -101,7 +101,7 @@ int main(int argc, char **argv){
         printf("./rtsp_client rtsp_url\n");
         return -1;
     }
-    RtspWrapper *wrapper = new RtspWrapper(argv[1]);
+    RtspClientProxy *wrapper = new RtspClientProxy(argv[1]);
     while(true){
         usleep(1000*1000 * 10);
         // break;
