@@ -101,10 +101,10 @@ int main(int argc, char **argv){
         printf("./rtsp_client rtsp_url\n");
         return -1;
     }
-    RtspClientProxy *wrapper = new RtspClientProxy(argv[1]);
+    RtspClientProxy *rtsp_client_proxy = new RtspClientProxy(argv[1]);
     while(true){
         usleep(1000*1000 * 10);
         // break;
     }
-    delete wrapper;
+    delete rtsp_client_proxy;
 }
