@@ -49,7 +49,7 @@ private:
     int ReadPacketTcp();
     
 private:
-    std::string  rtsp_url_ = "";
+    std::string rtsp_url_ = "";
     int rtsp_sd_ = -1;
     int cseq = 1;
     struct RTSPUrlInfo url_info_;

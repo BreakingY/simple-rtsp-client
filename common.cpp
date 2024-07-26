@@ -235,7 +235,7 @@ std::string GenerateAuthResponse(const char *username, const char *password, con
     MD5Init(&md5_1);
     MD5Update(&md5_1, (unsigned char*)buffer1, strlen(buffer1));
     MD5Final(&md5_1, res1);
-    for(int i=0; i < 16; i++) {
+    for(int i = 0; i < 16; i++) {
         snprintf(&(res1_hex[i * 2]), 3, "%02x", res1[i]);
     }
     // md5(public_method:url)
@@ -247,7 +247,7 @@ std::string GenerateAuthResponse(const char *username, const char *password, con
     MD5Init(&md5_2);
     MD5Update(&md5_2, (unsigned char*)buffer2, strlen(buffer2));
     MD5Final(&md5_2, res2);
-    for(int i=0; i < 16; i++) {
+    for(int i = 0; i < 16; i++) {
         snprintf(&(res2_hex[i * 2]), 3, "%02x", res2[i]);
     }
     // md5( md5(username:realm:password):nonce:md5(public_method:url) )
@@ -259,7 +259,7 @@ std::string GenerateAuthResponse(const char *username, const char *password, con
     MD5Init(&md5);
     MD5Update(&md5, (unsigned char*)buffer, strlen(buffer));
     MD5Final(&md5, res);
-    for(int i=0; i < 16; i++) {
+    for(int i = 0; i < 16; i++) {
         snprintf(&(res_hex[i * 2]), 3, "%02x", res[i]);
     }
     response = res_hex;
@@ -315,7 +315,7 @@ int GetSampleRateIndex(int freq){
         96000, 88200, 64000, 48000, 44100, 32000,
         24000, 22050, 16000, 12000, 11025, 8000, 7350
     };
-    for(i=0; i< 13; i++){
+    for(i = 0; i< 13; i++){
         if(freq == freq_arr[i]){
             return i;
         }

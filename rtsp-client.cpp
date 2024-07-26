@@ -31,10 +31,10 @@ RtspClient::~RtspClient(){
     if(sdp_){
         delete sdp_;
     }
-    if(rtp_sd_video_ >=0 ){
+    if(rtp_sd_video_ >= 0 ){
         close(rtp_sd_video_);
     }
-    if(rtcp_sd_video_ >=0 ){
+    if(rtcp_sd_video_ >= 0 ){
         close(rtcp_sd_video_);
     }
     if(rtp_sd_audio_ >= 0){
@@ -492,7 +492,7 @@ int RtspClient::SendPLAY(const char *url){
 int RtspClient::DecodePLAY(const char *url, const char *buffer, int len){
     std::string str = buffer;
     struct ResponseMessage parsed_message = ParseRTSPMessage(str);
-    if(parsed_message.code < 0){ // // internal error
+    if(parsed_message.code < 0){ // internal error
         return -1;
     }
     std::string session = GetValueByKey(parsed_message.result, "Session");
@@ -516,13 +516,13 @@ int RtspClient::ReadPacketUdp(){
     fd_set read_fds;
     FD_ZERO(&read_fds);
     std::vector<int> array_fd;
-    if(rtp_port_video_server_!=-1){ // video
+    if(rtp_port_video_server_ != -1){ // video
         FD_SET(rtp_sd_video_, &read_fds);
         FD_SET(rtcp_sd_video_, &read_fds);
         array_fd.push_back(rtp_sd_video_);
         array_fd.push_back(rtcp_sd_video_);
     }
-    if(rtp_port_audio_server_!=-1){ // audio
+    if(rtp_port_audio_server_ != -1){ // audio
         FD_SET(rtp_sd_audio_, &read_fds);
         FD_SET(rtcp_sd_audio_, &read_fds);
         array_fd.push_back(rtp_sd_audio_);
@@ -535,7 +535,7 @@ int RtspClient::ReadPacketUdp(){
     int max_fd;
     auto maxElementIter = std::max_element(array_fd.begin(), array_fd.end());
     max_fd = *maxElementIter;
-    int ret=select(max_fd + 1, &read_fds, NULL, NULL, &timeout);
+    int ret = select(max_fd + 1, &read_fds, NULL, NULL, &timeout);
     if(ret < 0){
         std::cout << rtsp_url_ << ":network error" << std::endl;
         return -1;
@@ -545,11 +545,11 @@ int RtspClient::ReadPacketUdp(){
         std::cout << rtsp_url_ << ":select time out" << std::endl;
         return -1;
     }
-    for(int i=0;i<array_fd.size();i++){
-        if(FD_ISSET(array_fd[i],&read_fds)){
+    for(int i = 0; i < array_fd.size(); i++){
+        if(FD_ISSET(array_fd[i], &read_fds)){
             struct sockaddr_in sender_addr;
             socklen_t sender_addr_len = sizeof(sender_addr);
-            bytes = recvfrom(array_fd[i], buffer, READ_SOCK_DATA_LEN, 0,(struct sockaddr*)&sender_addr, &sender_addr_len);
+            bytes = recvfrom(array_fd[i], buffer, READ_SOCK_DATA_LEN, 0, (struct sockaddr*)&sender_addr, &sender_addr_len);
             if (bytes <= 0) {
                 std::cout << rtsp_url_ << ":recvfrom error" << std::endl;
                 return -1;
@@ -613,10 +613,10 @@ int RtspClient::ReadPacketTcp(){
                 pos_buffer_ += header_.rtp_len16;
                 ptr += 4 + header_.rtp_len16;
                 bytes -= 4 + header_.rtp_len16;
-                if(header_.channel == 0){ // video
+                if(header_.channel == sig0_video_){ // video
                     rtp_video_demuxer_->InputData(buffer_, pos_buffer_);
                 }
-                else if(header_.channel == 2){ // audio
+                else if(header_.channel == sig0_audio_){ // audio
                     rtp_audio_demuxer_->InputData(buffer_, pos_buffer_);
                 }
                 pos_buffer_ = 0;
@@ -637,10 +637,10 @@ int RtspClient::ReadPacketTcp(){
                     pos_buffer_ += header_.rtp_len16;
                     ptr += header_.rtp_len16;
                     bytes -= header_.rtp_len16;
-                    if(header_.channel == 0){ // video
+                    if(header_.channel == sig0_video_){ // video
                         rtp_video_demuxer_->InputData(buffer_, pos_buffer_);
                     }
-                    else if(header_.channel == 2){ // audio
+                    else if(header_.channel == sig0_audio_){ // audio
                         rtp_audio_demuxer_->InputData(buffer_, pos_buffer_);
                     }
                     pos_buffer_ = 0;
