@@ -9,7 +9,7 @@
 #include <sstream>
 #include <algorithm>
 #include <poll.h>
-#include "rtsp-client.h"
+#include "rtsp_client.h"
 #include "common.h"
 #include "h264demuxer.h"
 #include "h265demuxer.h"
