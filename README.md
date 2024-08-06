@@ -9,6 +9,7 @@ simple rtsp client support TCP/UDP、H264/H265、AAC/PCMA、支持鉴权。
 * cmake ..
 * make -j
 * ./rtsp_client rtsp_url
+* H264/H265写入到test_out.h26x，AAC写入到test_out.aac，PCMA写入到test_out.pcma
 
 # 技术交流
 * kxsun617@163.com
