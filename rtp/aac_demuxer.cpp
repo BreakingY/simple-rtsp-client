@@ -1,6 +1,6 @@
-#include "pcmademuxer.h"
+#include "aac_demuxer.h"
 
-void PCMADemuxer::InputData(const uint8_t* data, size_t size){
+void AACDemuxer::InputData(const uint8_t* data, size_t size){
     struct RtpHeader *header = (struct RtpHeader *)data;
     int payload_type = header->payloadType;
     if(payload_type != payload_){
@@ -17,7 +17,7 @@ void PCMADemuxer::InputData(const uint8_t* data, size_t size){
         payload_len = payload_len - payload_offset;
     }
     if(call_back_){
-        call_back_->OnAudioData(ntohl(header->timestamp),  payload, payload_len);
+        call_back_->OnAudioData(ntohl(header->timestamp),  payload + 4, payload_len); // 4 for AU Header 一个rtp数据包一般只封装一帧aac
     }
     return;
 }

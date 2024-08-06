@@ -11,10 +11,10 @@
 #include <poll.h>
 #include "rtsp_client.h"
 #include "common.h"
-#include "h264demuxer.h"
-#include "h265demuxer.h"
-#include "aacdemuxer.h"
-#include "pcmademuxer.h"
+#include "h264_demuxer.h"
+#include "h265_demuxer.h"
+#include "aac_demuxer.h"
+#include "pcma_demuxer.h"
 #define RTSP_DEBUG
 RtspClient::RtspClient(enum TRANSPORT transport){
     rtp_transport_ = transport;
