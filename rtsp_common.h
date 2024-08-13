@@ -1,5 +1,5 @@
-#ifndef _COMMON_H_
-#define _COMMON_H_
+#ifndef _RTSP_COMMON_H_
+#define _RTSP_COMMON_H_
 
 #include <stdint.h>
 #include <iostream>

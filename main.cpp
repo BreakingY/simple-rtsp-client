@@ -43,7 +43,7 @@ public:
         }
         return NULL;
     }
-    void VideoData(int64_t pts, const uint8_t* data, size_t size){
+    void RtspVideoData(int64_t pts, const uint8_t* data, size_t size){
         if(h26x_fd_ == NULL){
             h26x_fd_ = fopen(h26x_filename_, "wb");
         }
@@ -56,7 +56,7 @@ public:
         }
         return;
     }
-    void AudioData(int64_t pts,  const uint8_t* data, size_t size){
+    void RtspAudioData(int64_t pts,  const uint8_t* data, size_t size){
         if(client_->GetAudioType() == MediaEnum::AAC){
             if(aac_fd_ == NULL){
                 aac_fd_ = fopen(aac_filename_, "wb");

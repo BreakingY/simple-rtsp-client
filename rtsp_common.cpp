@@ -10,7 +10,7 @@
 #include <sys/types.h>
 #include <unistd.h>
 #include <sstream>
-#include "common.h"
+#include "rtsp_common.h"
 extern "C"{
 #include "md5.h"
 }

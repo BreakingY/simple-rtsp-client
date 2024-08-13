@@ -10,7 +10,6 @@
 #include <algorithm>
 #include <poll.h>
 #include "rtsp_client.h"
-#include "common.h"
 #include "h264_demuxer.h"
 #include "h265_demuxer.h"
 #include "aac_demuxer.h"
@@ -215,14 +214,14 @@ void RtspClient::OnVideoData(int64_t pts, const uint8_t* data, size_t size){
         return;
     }
     if(call_back_){
-        call_back_->VideoData(pts, data, size);
+        call_back_->RtspVideoData(pts, data, size);
     }
     return;
 }
 
 void RtspClient::OnAudioData(int64_t pts, const uint8_t* data, size_t size){
     if(call_back_){
-        call_back_->AudioData(pts, data, size);
+        call_back_->RtspAudioData(pts, data, size);
     }
     return;
 }
@@ -592,27 +591,35 @@ int RtspClient::ReadPacketTcp(){
     unsigned char *ptr = buffer;
     int pos_buffer_end = bytes;
     while(ptr < buffer + pos_buffer_end){
-        if((*ptr == '$') && (header_.rtp_len16 == 0)){
-            header_.channel = ptr[1];
-            for(int i = 2; i <= 3; i++){
-                header_.rtp_len16 <<= 8;
-                header_.rtp_len16 |= ptr[i];
-                
-            } 
-            // or header_.rtp_len16 = (ptr[2] << 8) | ptr[3];
-            if(header_.rtp_len16 > bytes - 4){
-                memcpy(buffer_, ptr + 4, bytes - 4);
-                pos_buffer_ += bytes - 4;
-                header_.rtp_len16 -= bytes - 4;
-                ptr += bytes;
-                bytes = 0;
+        if((stat_ == EMPTY_STATE) || (stat_ == RTSP_MESSAGE_STATE)){
+            if(*ptr == '$'){
+                buffer_header_[pos_buffer_header_++] = *ptr;
+                ptr++;
+                stat_ = RTP_TCP_HEADER_STATE;
             }
             else{
-                
-                memcpy(buffer_, ptr + 4, header_.rtp_len16);
-                pos_buffer_ += header_.rtp_len16;
-                ptr += 4 + header_.rtp_len16;
-                bytes -= 4 + header_.rtp_len16;
+                stat_ = RTSP_MESSAGE_STATE;
+            }
+        }
+        else if(stat_ == RTP_TCP_HEADER_STATE){
+            buffer_header_[pos_buffer_header_++] = *ptr;
+            ptr++;
+            if(pos_buffer_header_ == 4){
+                stat_ = RTP_TCP_CONTENT_STATE;
+                header_.channel = buffer_header_[1];
+                for(int i = 2; i <= 3; i++){
+                    header_.rtp_len16 <<= 8;
+                    header_.rtp_len16 |= buffer_header_[i];
+                } 
+                pos_buffer_header_ = 0;
+            }
+        }
+        else if(stat_ == RTP_TCP_CONTENT_STATE){
+            if(header_.rtp_len16 > pos_buffer_){
+                buffer_[pos_buffer_++] = *ptr;
+                ptr++;
+            }
+            else{
                 if(header_.channel == sig0_video_){ // video
                     rtp_video_demuxer_->InputData(buffer_, pos_buffer_);
                 }
@@ -621,38 +628,12 @@ int RtspClient::ReadPacketTcp(){
                 }
                 pos_buffer_ = 0;
                 header_.rtp_len16 = 0;
+                stat_ = EMPTY_STATE;
             }
         }
-        else{
-            if(header_.rtp_len16 != 0){ // packet
-                if(header_.rtp_len16 > bytes){
-                    memcpy(buffer_ + pos_buffer_, ptr, bytes);
-                    pos_buffer_ += bytes;
-                    header_.rtp_len16 -= bytes;
-                    ptr += bytes;
-                    bytes = 0;
-                }
-                else{
-                    memcpy(buffer_ + pos_buffer_, ptr, header_.rtp_len16);
-                    pos_buffer_ += header_.rtp_len16;
-                    ptr += header_.rtp_len16;
-                    bytes -= header_.rtp_len16;
-                    if(header_.channel == sig0_video_){ // video
-                        rtp_video_demuxer_->InputData(buffer_, pos_buffer_);
-                    }
-                    else if(header_.channel == sig0_audio_){ // audio
-                        rtp_audio_demuxer_->InputData(buffer_, pos_buffer_);
-                    }
-                    pos_buffer_ = 0;
-                    header_.rtp_len16 = 0;
-                }
-            }
-            else{ // RTSP MESSAGE
-                // ignore
-                // std::cout<< "RTSP MESSAGE" << std::endl;
-                ptr++;
-                bytes--;
-            }
+        else if(stat_ == RTSP_MESSAGE_STATE){
+            // skip rtsp message
+            ptr++;
         }
     }
     return pos_buffer_end;

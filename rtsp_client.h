@@ -2,7 +2,7 @@
 #define RTSP_CLIENT
 #include <iostream>
 #include <string>
-#include "common.h"
+#include "rtsp_common.h"
 #include "sdp.h"
 #include "rtp_demuxer.h"
 #define USER_AGENT "simple-rtsp-client"
@@ -13,9 +13,17 @@ enum TRANSPORT{
 };
 class RtspMediaInterface {
 public:
-  virtual void VideoData(int64_t pts, const uint8_t* data, size_t size) = 0;
-  virtual void AudioData(int64_t pts,  const uint8_t* data, size_t size) = 0;
+  virtual void RtspVideoData(int64_t pts, const uint8_t* data, size_t size) = 0;
+  virtual void RtspAudioData(int64_t pts,  const uint8_t* data, size_t size) = 0;
 };
+enum ParseState
+{
+    EMPTY_STATE,
+    RTP_TCP_HEADER_STATE,
+    RTP_TCP_CONTENT_STATE,
+    RTSP_MESSAGE_STATE,
+};
+
 class RtspClient : public RTPDemuxerInterface {
 public:
     RtspClient(enum TRANSPORT transport = TRANSPORT::RTP_OVER_UDP);
@@ -92,8 +100,13 @@ private:
     bool video_frame_ready_ = false;
 
     struct rtp_tcp_header header_;
+    // 缓存rtp over tcp头部
+    uint8_t buffer_header_[4];
+    int pos_buffer_header_ = 0;
+    // 缓存rtp数据包
     uint8_t buffer_[4 * 1024 * 1024];
     int pos_buffer_ = 0;
+    enum ParseState stat_ = EMPTY_STATE;
 };
 
 #endif
