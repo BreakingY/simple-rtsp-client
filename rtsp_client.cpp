@@ -53,7 +53,7 @@ RtspClient::~RtspClient(){
     }
     std::cout << "~RtspClient" << std::endl;
 }
-int RtspClient::Connect(char *url){
+int RtspClient::Connect(const char *url){
     int ret;
     enum MediaEnum video_type;
     enum MediaEnum audio_type;
@@ -294,19 +294,19 @@ int RtspClient::SendDESCRIBE(const char *url, const char *authorization){
 }
 static void ExtractRealmAndNonce(const std::string& digest, std::string& realm, std::string& nonce) {
     size_t pos;
-    // 提取realm
+    // Extract realm
     pos = digest.find("realm=\"");
     if (pos != std::string::npos) {
-        pos += 7; // 跳过 "realm=\""
+        pos += 7; // Skip "realm=\""
         size_t end_pos = digest.find("\"", pos);
         if (end_pos != std::string::npos) {
             realm = digest.substr(pos, end_pos - pos);
         }
     }
-    // 提取nonce
+    // Extract nonce
     pos = digest.find("nonce=\"");
     if (pos != std::string::npos) {
-        pos += 7; // 跳过 "nonce=\""
+        pos += 7; // Skip "nonce=\""
         size_t end_pos = digest.find("\"", pos);
         if (end_pos != std::string::npos) {
             nonce = digest.substr(pos, end_pos - pos);
@@ -340,7 +340,7 @@ int RtspClient::DecodeDESCRIBE(const char *url, const char *buffer, int len){
         SendDESCRIBE(url, res.c_str());
         return 0;
     }
-    else{ // 解析SDP
+    else{ // parse SDP
         // printf("code:%d\n",parsed_message.code);
         // printf("stat:%s\n",parsed_message.message.c_str());
         // printf("sdp:%s\n",parsed_message.sdp.c_str());
@@ -353,7 +353,7 @@ int RtspClient::DecodeDESCRIBE(const char *url, const char *buffer, int len){
             return 0;
         }
         int content_len = std::stoi(content_len_str);
-        if((len - used_bytes) < content_len){ // payload不完整
+        if((len - used_bytes) < content_len){ // The payload is incomplete
             buffer_cmd_used_ -= used_bytes;
             return 0;
         }
@@ -699,7 +699,7 @@ int RtspClient::ReadPacketTcp(){
     }
     return pos_buffer_end;
 }
-static void * RtspClient::RecvPacketThd(void *arg){
+void *RtspClient::RecvPacketThd(void *arg){
     RtspClient *self = (RtspClient*)arg;
     self->run_tid_ = true;
     struct timeval pre_time;
@@ -710,7 +710,7 @@ static void * RtspClient::RecvPacketThd(void *arg){
     self->header_.channel = 0;
     self->header_.rtp_len16 = 0;
     while(self->run_flag_){
-        //心跳
+        // heartbeat
         gettimeofday(&now_time, 0);
         int64_t time_gap = now_time.tv_sec - pre_time.tv_sec;
         if(time_gap >= self->timeout_){

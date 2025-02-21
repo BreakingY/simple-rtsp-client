@@ -1,15 +1,18 @@
 # simple-rtsp-client
-simple rtsp client support TCP/UDP、H264/H265、AAC/PCMA、支持鉴权。
-* MD5依赖：https://github.com/talent518/md5
-* 博客地址：https://blog.csdn.net/weixin_43147845/article/details/140851964
+* RTSP1.0
+* H264/H265/AAC/PCMA(G711A)
+* Support rtp over udp、rtp over tcp, support authentication
+* MD5：https://github.com/talent518/md5
 
-# 编译
+# Compile
 * mkdir build
 * cd build
 * cmake ..
 * make -j
-* ./rtsp_client rtsp_url
-* H264/H265写入到test_out.h26x，AAC写入到test_out.aac，PCMA写入到test_out.pcma
 
-# 技术交流
+# Test
+* ./rtsp_client rtsp_url
+* H264/H265 is written to test_out.H26x, AAC is written to test_out.aac, PCMA is written to test_out.pcma
+
+# Email
 * kxsun617@163.com

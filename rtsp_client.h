@@ -40,7 +40,7 @@ class RtspClient : public RTPDemuxerInterface {
 public:
     RtspClient(enum TRANSPORT transport = TRANSPORT::RTP_OVER_UDP);
     ~RtspClient();
-    int Connect(char *url);
+    int Connect(const char *url);
     enum MediaEnum GetVideoType() {return sdp_->GetVideoType();}
     enum MediaEnum GetAudioType() {return sdp_->GetAudioType();}
     void SetCallBack(RtspMediaInterface *call_back){call_back_ = call_back; return;}
@@ -83,7 +83,7 @@ private:
     bool audio_setup_ = false;
     enum TRANSPORT rtp_transport_;
     std::string session_ = "" ;
-    int timeout_ = 60; // 秒
+    int timeout_ = 60; // second
     bool connected_ = false;
     enum RTSPCMDSTAT rtsp_cmd_stat_ = RTSPCMDSTAT::RTSP_NONE;
     char buffer_cmd_[4096] = {0};
@@ -109,7 +109,7 @@ private:
 
     pthread_t tid_;
     bool run_flag_ = true;
-    int recv_rtp_packet_timeout_ = 2; // 秒
+    int recv_rtp_packet_timeout_ = 2; // second
     std::atomic<bool> run_tid_ = {false};
 
     RTPDemuxer *rtp_video_demuxer_ = NULL;
@@ -119,10 +119,10 @@ private:
     bool video_frame_ready_ = false;
 
     struct rtp_tcp_header header_;
-    // 缓存rtp over tcp头部
+    // Cache RTP over TCP header
     uint8_t buffer_header_[4];
     int pos_buffer_header_ = 0;
-    // 缓存rtp数据包
+    // Cache RTP packets
     uint8_t buffer_[4 * 1024 * 1024];
     int pos_buffer_ = 0;
     enum ParseState stat_ = EMPTY_STATE;

@@ -47,7 +47,7 @@ int ConnectToServer(int sockfd, const char* ip, int port, int timeout)
         return -1;
     }
 
-    // 设置sockfd为非阻塞
+    // Set sockfd to non blocking
     int flags = fcntl(sockfd, F_GETFL, 0);
     if (flags < 0) {
         perror("fcntl(F_GETFL)");
@@ -59,7 +59,7 @@ int ConnectToServer(int sockfd, const char* ip, int port, int timeout)
         return -1;
     }
 
-    // 连接到服务器
+    // Connect to server
     int ret = connect(sockfd, (struct sockaddr*)&server_addr, sizeof(server_addr));
     if (ret < 0) {
         if (errno != EINPROGRESS) {
@@ -67,7 +67,7 @@ int ConnectToServer(int sockfd, const char* ip, int port, int timeout)
             return -1;
         }
 
-        // 使用select等待连接完成
+        // Use select to wait for the connection to complete
         fd_set writefds;
         FD_ZERO(&writefds);
         FD_SET(sockfd, &writefds);
@@ -88,7 +88,7 @@ int ConnectToServer(int sockfd, const char* ip, int port, int timeout)
         }
     }
 
-    // 还原sockfd为阻塞
+    // Restore sockfd to blocked
     if (fcntl(sockfd, F_SETFL, flags) < 0) {
         perror("fcntl(F_SETFL)");
         return -1;
@@ -107,11 +107,11 @@ int BindSocketAddr(int sockfd, const char *ip, int port)
     return 0;
 }
 bool ParseRTSPUrl(const std::string& rtsp_url, RTSPUrlInfo& url_info) {
-    // 格式：rtsp://[username:password@]host[:port]
+    // format: rtsp://[username:password@]host[:port]
     std::istringstream iss(rtsp_url);
     char delimiter;
 
-    // 检查是否以 "rtsp://" 开头
+    // Check if it starts with "rtsp://""
     if (!(iss >> delimiter) || delimiter != 'r' ||
         !(iss >> delimiter) || delimiter != 't' ||
         !(iss >> delimiter) || delimiter != 's' ||
@@ -119,37 +119,37 @@ bool ParseRTSPUrl(const std::string& rtsp_url, RTSPUrlInfo& url_info) {
         !(iss >> delimiter) || delimiter != ':' ||
         !(iss >> delimiter) || delimiter != '/' ||
         !(iss >> delimiter) || delimiter != '/') {
-        return false;  // 不是有效的 RTSP URL 格式
+        return false;  // Not a valid RTSP URL format
     }
 
     url_info.url = "rtsp://";
     std::streampos pos = iss.tellg();
     std::string str = rtsp_url.substr(static_cast<int>(pos));
     if (str.find('@') != std::string::npos){
-        std::getline(iss, url_info.username, ':');  // 获取用户名
-        std::getline(iss, url_info.password, '@');  // 获取密码
+        std::getline(iss, url_info.username, ':');  // Get username
+        std::getline(iss, url_info.password, '@');  // Get password
     }
     
     pos = iss.tellg();
     str = rtsp_url.substr(static_cast<int>(pos));
     url_info.url += str;
     if(str.find(':') != std::string::npos){
-        std::getline(iss, url_info.host, ':');  // 获取主机地址
+        std::getline(iss, url_info.host, ':');  // Get host address
         if (url_info.host.empty()) {
-            return false;  // 主机地址不能为空
+            return false;  // The host address cannot be empty
         }
 
         std::string port;
-        std::getline(iss, port, ':');  // 端口
+        std::getline(iss, port, ':');  // port
         url_info.port = atoi(port.c_str());
     }
     else if(str.find('/') != std::string::npos){
-        std::getline(iss, url_info.host, '/');  // 获取主机地址
-        url_info.port = 554; // 默认端口号为 554
+        std::getline(iss, url_info.host, '/');  // Get host address
+        url_info.port = 554; // The default port number is 554
     }
     else{
         url_info.host = str;
-        url_info.port = 554; // 默认端口号为 554
+        url_info.port = 554; // The default port number is 554
     }
     return true;
 }
@@ -160,7 +160,7 @@ static bool ParseRTSPLine(const std::string& line, std::string& key, std::string
     }
     key = line.substr(0, pos);
     
-    // 跳过冒号后的所有空格
+    // Skip all spaces after the colon
     size_t start = pos + 1;
     while (start < line.size() && std::isspace(line[start])) {
         ++start;
@@ -196,7 +196,7 @@ int ParseRTSPMessage(const std::string& rtsp_message, struct ResponseMessage &re
     char state_buffer[512] = {0};
     response.code = -1;
     response.find_payload = false;
-    while(buffer_ptr < buffer_end){ // 跳过上一个消息数据
+    while(buffer_ptr < buffer_end){ // Skip the previous message data
         buffer_ptr = GetLineFromBuf(buffer_ptr, line, buffer_end - buffer_ptr);
         used += strlen(line);
         if (sscanf(line, "RTSP/1.0 %d %s\r\n", &response.code, state_buffer) == 2) {
@@ -223,11 +223,11 @@ int ParseRTSPMessage(const std::string& rtsp_message, struct ResponseMessage &re
 }
 std::string GetValueByKey(const std::vector<std::pair<std::string, std::string>>& headers, std::string key) {
     std::string lower_key = key;
-    // 转换 key 为小写
+    // Convert key to lowercase
     std::transform(lower_key.begin(), lower_key.end(), lower_key.begin(), ::tolower);
     for (const auto& header : headers) {
         std::string lower_header = header.first;
-        // 转换 header.first 为小写
+        // Convert header.first to lowercase
         std::transform(lower_header.begin(), lower_header.end(), lower_header.begin(), ::tolower);
         if (lower_header == lower_key) {
             return header.second;
@@ -282,15 +282,13 @@ int CreateRtpSockets(int *fd1, int *fd2, int *port1, int *port2)
     int port = 0;
 
     *fd1 = socket(AF_INET, SOCK_DGRAM, 0);
-    if (*fd1 < 0)
-    {
+    if(*fd1 < 0){
         perror("socket");
         return -1;
     }
 
     *fd2 = socket(AF_INET, SOCK_DGRAM, 0);
-    if (*fd2 < 0)
-    {
+    if(*fd2 < 0){
         perror("socket");
         close(*fd1);
         return -1;
@@ -300,14 +298,11 @@ int CreateRtpSockets(int *fd1, int *fd2, int *port1, int *port2)
     addr.sin_family = AF_INET;
     addr.sin_addr.s_addr = htonl(INADDR_ANY);
 
-    for (port = 1024; port <= 65535; port += 2)
-    {
+    for(port = 1024; port <= 65535; port += 2){
         addr.sin_port = htons(port);
-        if (bind(*fd1, (struct sockaddr *)&addr, sizeof(addr)) == 0)
-        {
+        if(bind(*fd1, (struct sockaddr *)&addr, sizeof(addr)) == 0){
             addr.sin_port = htons(port + 1);
-            if (bind(*fd2, (struct sockaddr *)&addr, sizeof(addr)) == 0)
-            {
+            if(bind(*fd2, (struct sockaddr *)&addr, sizeof(addr)) == 0){
                 *port1 = port;
                 *port2 = port + 1;
                 return 0;
@@ -331,13 +326,13 @@ int GetSampleRateIndex(int freq){
             return i;
         }
     }
-    return 4;//默认是44100
+    return 4;// The default is 44100
 }
 void AdtsHeader(char *adts_header_buffer, int data_len, int profile, int sample_rate_index, int channels){
     int adts_len = data_len + 7;
 
-    adts_header_buffer[0] = 0xff;         //syncword:0xfff                          高8bits
-    adts_header_buffer[1] = 0xf0;         //syncword:0xfff                          低4bits
+    adts_header_buffer[0] = 0xff;         //syncword:0xfff                          high 8bits
+    adts_header_buffer[1] = 0xf0;         //syncword:0xfff                          low 4bits
     adts_header_buffer[1] |= (0 << 3);    //MPEG Version:0 for MPEG-4,1 for MPEG-2  1bit
     adts_header_buffer[1] |= (0 << 1);    //Layer:0                                 2bits
     adts_header_buffer[1] |= 1;           //protection absent:1                     1bit
@@ -347,16 +342,16 @@ void AdtsHeader(char *adts_header_buffer, int data_len, int profile, int sample_
     adts_header_buffer[2] |= (0 << 1);                             //private bit:0                                      1bit
     adts_header_buffer[2] |= (channels & 0x04)>>2;           //channel configuration:channel_config               高1bit
 
-    adts_header_buffer[3] = (channels & 0x03)<<6;     //channel configuration:channel_config      低2bits
+    adts_header_buffer[3] = (channels & 0x03)<<6;     //channel configuration:channel_config      low 2bits
     adts_header_buffer[3] |= (0 << 5);                      //original：0                               1bit
     adts_header_buffer[3] |= (0 << 4);                      //home：0                                   1bit
     adts_header_buffer[3] |= (0 << 3);                      //copyright id bit：0                       1bit
     adts_header_buffer[3] |= (0 << 2);                      //copyright id start：0                     1bit
-    adts_header_buffer[3] |= ((adts_len & 0x1800) >> 11);           //frame length：value   高2bits
+    adts_header_buffer[3] |= ((adts_len & 0x1800) >> 11);           //frame length：value   high 2bits
 
-    adts_header_buffer[4] = (uint8_t)((adts_len & 0x7f8) >> 3);     //frame length:value    中间8bits
-    adts_header_buffer[5] = (uint8_t)((adts_len & 0x7) << 5);       //frame length:value    低3bits
-    adts_header_buffer[5] |= 0x1f;                                 //buffer fullness:0x7ff 高5bits
+    adts_header_buffer[4] = (uint8_t)((adts_len & 0x7f8) >> 3);     //frame length:value    middle 8bits
+    adts_header_buffer[5] = (uint8_t)((adts_len & 0x7) << 5);       //frame length:value    low 3bits
+    adts_header_buffer[5] |= 0x1f;                                 //buffer fullness:0x7ff high 5bits
     adts_header_buffer[6] = 0xfc;
     return;
 }

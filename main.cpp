@@ -7,7 +7,7 @@ public:
         client_ =  new RtspClient(transport_); 
         client_->Connect(rtsp_url); 
         client_->SetCallBack(this);
-        pthread_create(&tid_, NULL, &RtspClientProxy::ReconnectThread, this);
+        pthread_create(&tid_, NULL, &ReconnectThread, this);
     }
     ~RtspClientProxy(){
         run_flag_ = false;
@@ -27,7 +27,7 @@ public:
         }
         std::cout << "~RtspClientProxy" << std::endl;
     }
-    static void * RtspClientProxy::ReconnectThread(void *arg){
+    static void *ReconnectThread(void *arg){
         RtspClientProxy *self = (RtspClientProxy*)arg;
         while(self->run_flag_){
            bool stat = self->client_->GetOpenStat();
@@ -66,11 +66,11 @@ public:
             int profile, sample_rate_index, channels;
             client_->GetAudioInfo(sample_rate_index, channels, profile);
             AdtsHeader(adts_header_buf, size,
-                        profile,//AAC编码级别
-                        sample_rate_index,//采样率 Hz
+                        profile,
+                        sample_rate_index,
                         channels);
-            fwrite(adts_header_buf, 1, 7, aac_fd_);  // 写adts header , ts流不适用，ts流分离出来的packet带了adts header
-            fwrite(data, 1, size, aac_fd_);   // 写adts data
+            fwrite(adts_header_buf, 1, 7, aac_fd_);
+            fwrite(data, 1, size, aac_fd_);
         }
         else if(client_->GetAudioType() == MediaEnum::PCMA){
             if(pcma_fd_ == NULL){
@@ -84,13 +84,13 @@ private:
     std::string rtsp_url_;
     enum TRANSPORT transport_ = TRANSPORT::RTP_OVER_TCP;
     RtspClient *client_ = NULL;
-    char *aac_filename_ = "test_out.aac"; 
+    const char *aac_filename_ = "test_out.aac"; 
     FILE *aac_fd_ = NULL;
-    char *pcma_filename_ = "test_out.pcma";
+    const char *pcma_filename_ = "test_out.pcma";
     FILE *pcma_fd_ = NULL;
 
 
-    char *h26x_filename_ = "test_out.h26x"; 
+    const char *h26x_filename_ = "test_out.h26x"; 
     FILE *h26x_fd_ = NULL;
 
     pthread_t tid_;
