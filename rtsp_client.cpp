@@ -576,6 +576,10 @@ int RtspClient::ReadPacketUdp(){
     fd_set read_fds;
     FD_ZERO(&read_fds);
     std::vector<int> array_fd;
+    // rtsp message(heartbeat response)
+    FD_SET(rtsp_sd_, &read_fds);
+    array_fd.push_back(rtsp_sd_);
+
     if(rtp_port_video_server_ != -1){ // video
         FD_SET(rtp_sd_video_, &read_fds);
         FD_SET(rtcp_sd_video_, &read_fds);
@@ -606,7 +610,22 @@ int RtspClient::ReadPacketUdp(){
         return -1;
     }
     for(int i = 0; i < array_fd.size(); i++){
-        if(FD_ISSET(array_fd[i], &read_fds)){
+        if(i == 0){ // tcp
+            if(FD_ISSET(rtsp_sd_, &read_fds)){
+                char buffer_recv[4096] = {0};
+                int recv_len = 0;
+                recv_len = recv(rtsp_sd_, buffer_recv, sizeof(buffer_recv), 0);
+                if(recv_len <= 0){
+                    return -1;
+                }
+                // skip heartbeat response
+#ifdef RTSP_DEBUG
+                std::cout << "heartbeat response:" << std::endl;
+                std::cout << buffer_recv << std::endl;
+#endif
+            }
+        }
+        else if(FD_ISSET(array_fd[i], &read_fds)){
             struct sockaddr_in sender_addr;
             socklen_t sender_addr_len = sizeof(sender_addr);
             bytes = recvfrom(array_fd[i], buffer, READ_SOCK_DATA_LEN, 0, (struct sockaddr*)&sender_addr, &sender_addr_len);
