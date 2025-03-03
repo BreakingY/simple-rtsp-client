@@ -611,7 +611,7 @@ int RtspClient::ReadPacketUdp(){
             if(FD_ISSET(rtsp_sd_, &read_fds)){
                 char buffer_recv[4096] = {0};
                 int recv_len = 0;
-                recv_len = recv(rtsp_sd_, buffer_recv, sizeof(buffer_recv), 0);
+                recv_len = recvWithTimeout(rtsp_sd_, buffer_recv, sizeof(buffer_recv), recv_rtp_packet_timeout_ * 1000);
                 if(recv_len <= 0){
                     return -1;
                 }
