@@ -82,7 +82,7 @@ int serverListen(socket_t sockfd, int num){
 }
 
 int connectToServer(socket_t sockfd, const char *ip, int port, int timeout/*ms*/){
-    bool is_connected = true;
+    int is_connected = 1;
     if (timeout > 0) {
         setNonBlock(sockfd);
     }
@@ -94,22 +94,22 @@ int connectToServer(socket_t sockfd, const char *ip, int port, int timeout/*ms*/
 
     if(connect(sockfd, (struct sockaddr *)&addr, addrlen) < 0){
         if(timeout > 0){
-            is_connected = false;
+            is_connected = 0;
             fd_set fd_write;
             FD_ZERO(&fd_write);
             FD_SET(sockfd, &fd_write);
             struct timeval tv = {timeout / 1000, timeout % 1000 * 1000};
             select((int)sockfd + 1, NULL, &fd_write, NULL, &tv);
             if(FD_ISSET(sockfd, &fd_write)){
-                is_connected = true;
+                is_connected = 1;
             }
             setBlock(sockfd);
         }
         else{
-            is_connected = false;
+            is_connected = 0;
         }
     }
-    if(is_connected){
+    if(is_connected == 1){
         return 0;
     }
     return -1;
