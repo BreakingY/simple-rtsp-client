@@ -625,7 +625,7 @@ int RtspClient::ReadPacketUdp(){
         else if(FD_ISSET(array_fd[i], &read_fds)){
             char ip[512];
             int port;
-            bytes = recvUDP(array_fd[i], (char *)buffer, READ_SOCK_DATA_LEN, ip, &port);
+            bytes = recvUDP(array_fd[i], (char *)buffer, READ_SOCK_DATA_LEN, ip, &port, recv_rtp_packet_timeout_ * 1000);
             if (bytes <= 0) {
                 std::cout << rtsp_url_ << ":recvfrom error" << std::endl;
                 return -1;
