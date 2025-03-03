@@ -1,4 +1,6 @@
-#include <unistd.h>
+#include <iostream>
+#include <thread>
+#include <chrono>
 #include "rtsp_client.h"
 class RtspClientProxy:public RtspMediaInterface{
 public:
@@ -7,14 +9,11 @@ public:
         client_ =  new RtspClient(transport_); 
         client_->Connect(rtsp_url); 
         client_->SetCallBack(this);
-        pthread_create(&tid_, NULL, &ReconnectThread, this);
+        tid_=std::thread(ReconnectThread,this);
     }
     ~RtspClientProxy(){
         run_flag_ = false;
-        int ret = pthread_join(tid_, NULL);
-        if(ret < 0){
-            std::cout << "pthread_join ReconnectThread error:" << tid_ << std::endl;
-        }
+        tid_.join();
         delete client_;
         if(h26x_fd_){
             fclose(h26x_fd_);
@@ -39,7 +38,7 @@ public:
                 self->client_->SetCallBack(self);
 
            }
-           usleep(1000 * 1000);
+           std::this_thread::sleep_for(std::chrono::milliseconds(1000));
         }
         return NULL;
     }
@@ -93,7 +92,7 @@ private:
     const char *h26x_filename_ = "test_out.h26x"; 
     FILE *h26x_fd_ = NULL;
 
-    pthread_t tid_;
+    std::thread tid_;
     bool run_flag_ = true;
 };
 int main(int argc, char **argv){
@@ -103,7 +102,7 @@ int main(int argc, char **argv){
     }
     RtspClientProxy *rtsp_client_proxy = new RtspClientProxy(argv[1]);
     while(true){
-        usleep(1000*1000 * 10);
+        std::this_thread::sleep_for(std::chrono::milliseconds(1000 * 10));
         // break;
     }
     delete rtsp_client_proxy;

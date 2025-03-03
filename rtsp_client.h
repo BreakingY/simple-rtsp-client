@@ -3,7 +3,9 @@
 #include <iostream>
 #include <string>
 #include <atomic>
+#include <thread>
 #include "rtsp_common.h"
+#include "socket_io.h"
 #include "sdp.h"
 #include "rtp_demuxer.h"
 #define USER_AGENT "simple-rtsp-client"
@@ -70,7 +72,7 @@ private:
     
 private:
     std::string rtsp_url_ = "";
-    int rtsp_sd_ = -1;
+    socket_t rtsp_sd_ = -1;
     int cseq = 1;
     struct RTSPUrlInfo url_info_;
     std::string realm_ = "";
@@ -92,22 +94,22 @@ private:
     // udp 
     int rtp_port_video_ = -1;
     int rtcp_port_video_ = -1;
-    int rtp_sd_video_ = -1;
-    int rtcp_sd_video_ = -1;
+    socket_t rtp_sd_video_ = -1;
+    socket_t rtcp_sd_video_ = -1;
     int rtp_port_video_server_ = -1;
     int rtcp_port_video_server_ = -1;
 
     int rtp_port_audio_ = -1;
     int rtcp_port_audio_ = -1;
-    int rtp_sd_audio_ = -1;
-    int rtcp_sd_audio_ = -1;
+    socket_t rtp_sd_audio_ = -1;
+    socket_t rtcp_sd_audio_ = -1;
     int rtp_port_audio_server_ = -1;
     int rtcp_port_audio_server_ = -1;
     // tcp 
     int sig0_video_ = 0;
     int sig0_audio_ = 2;
 
-    pthread_t tid_;
+    std::thread tid_;
     bool run_flag_ = true;
     int recv_rtp_packet_timeout_ = 2; // second
     std::atomic<bool> run_tid_ = {false};

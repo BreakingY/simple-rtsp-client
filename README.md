@@ -5,10 +5,16 @@
 * MD5：https://github.com/talent518/md5
 
 # Compile
-* mkdir build
-* cd build
-* cmake ..
-* make -j
+1. linux
+   * mkdir build
+   * cd build
+   * cmake ..
+   * make -j
+2. Windows(MinGW + cmake)
+   * mkdir build
+   * cd build
+   * cmake -G "MinGW Makefiles" ..
+   * mingw32-make
 
 # Test
 * ./rtsp_client rtsp_url
