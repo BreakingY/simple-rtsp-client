@@ -392,14 +392,14 @@ int RtspClient::SendSTEUP(const char *url){
     }
     if(rtp_transport_ == TRANSPORT::RTP_OVER_UDP){
         if(std::string(url) == video_url_){
-            if(create_rtp_sockets(&rtp_sd_video_, &rtcp_sd_video_, &rtp_port_video_, &rtcp_port_video_) < 0){
+            if(createRtpSockets(&rtp_sd_video_, &rtcp_sd_video_, &rtp_port_video_, &rtcp_port_video_) < 0){
                 std::cout << "video CreateRtpSockets error" << std::endl;
                 return -1;
             }
             sprintf(result+strlen(result),"Transport: RTP/AVP;unicast;client_port=%d-%d\r\n",rtp_port_video_, rtcp_port_video_);
         }
         else if(std::string(url) == audio_url_){
-            if(create_rtp_sockets(&rtp_sd_audio_, &rtcp_sd_audio_, &rtp_port_audio_, &rtcp_port_audio_) < 0){
+            if(createRtpSockets(&rtp_sd_audio_, &rtcp_sd_audio_, &rtp_port_audio_, &rtcp_port_audio_) < 0){
                 std::cout << "audio CreateRtpSockets error" << std::endl;
                 return -1;
             }
