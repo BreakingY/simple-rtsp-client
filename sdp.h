@@ -29,6 +29,7 @@ struct MediaInfo{
     int sample_rate_index;
     int channels;           // only audio
     int profile;            // only audio from config=1390
+    int framerate;          // only video
 };
 struct SdpInfo{
     std::string contorl;            // * or url

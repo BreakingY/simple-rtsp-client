@@ -9,7 +9,7 @@
 #include "sdp.h"
 #include "rtp_demuxer.h"
 #define USER_AGENT "simple-rtsp-client"
-#define READ_SOCK_DATA_LEN 1500
+#define READ_SOCK_DATA_LEN 4096
 enum TRANSPORT{
     RTP_OVER_TCP = 0,
     RTP_OVER_UDP,
@@ -128,6 +128,10 @@ private:
     uint8_t buffer_[4 * 1024 * 1024];
     int pos_buffer_ = 0;
     enum ParseState stat_ = EMPTY_STATE;
+    // heartbeat
+    unsigned char buffer_heartbeat_[READ_SOCK_DATA_LEN];
+    int pos_buffer_heartbeat_ = 0;
+    enum ParseState last_stat_ = EMPTY_STATE;
 
     int authorization_try_cnt = 0;
     int authorization_try_max = 2;
