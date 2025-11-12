@@ -48,6 +48,7 @@ public:
     void SetCallBack(RtspMediaInterface *call_back){call_back_ = call_back; return;}
     void GetAudioInfo(int &sample_rate_index, int &channels, int &profile) {sdp_->GetAudioInfo(sample_rate_index, channels, profile); return;}
     bool GetOpenStat(){return connected_;}
+    int GetFramerate(){return sdp_->GetFramerate();}
 private:
     void OnVideoData(int64_t pts, const uint8_t* data, size_t size);
     void OnAudioData(int64_t pts,  const uint8_t* data, size_t size);
