@@ -29,16 +29,16 @@ static void AdtsHeader(char *adts_header_buffer, int data_len, int profile, int 
     adts_header_buffer[6] = 0xfc;
     return;
 }
-class RtspClientProxy:public RtspMediaInterface{
+class RtspClientProxyDemo:public RtspMediaInterface{
 public:
-    RtspClientProxy(char *rtsp_url){
+    RtspClientProxyDemo(char *rtsp_url){
         rtsp_url_ = rtsp_url;
         client_ =  new RtspClient(transport_); 
         client_->Connect(rtsp_url); 
         client_->SetCallBack(this);
         tid_=std::thread(ReconnectThread,this);
     }
-    ~RtspClientProxy(){
+    ~RtspClientProxyDemo(){
         run_flag_ = false;
         tid_.join();
         delete client_;
@@ -51,10 +51,10 @@ public:
         if(pcma_fd_){
             fclose(pcma_fd_);
         }
-        std::cout << "~RtspClientProxy" << std::endl;
+        std::cout << "~RtspClientProxyDemo" << std::endl;
     }
     static void *ReconnectThread(void *arg){
-        RtspClientProxy *self = (RtspClientProxy*)arg;
+        RtspClientProxyDemo *self = (RtspClientProxyDemo*)arg;
         while(self->run_flag_){
            bool stat = self->client_->GetOpenStat();
            if(stat == false){
@@ -127,10 +127,10 @@ int main(int argc, char **argv){
         printf("./rtsp_client rtsp_url\n");
         return -1;
     }
-    RtspClientProxy *rtsp_client_proxy = new RtspClientProxy(argv[1]);
+    RtspClientProxyDemo *rtsp_client_proxy_demo = new RtspClientProxyDemo(argv[1]);
     while(true){
         std::this_thread::sleep_for(std::chrono::milliseconds(1000 * 10));
         // break;
     }
-    delete rtsp_client_proxy;
+    delete rtsp_client_proxy_demo;
 }
