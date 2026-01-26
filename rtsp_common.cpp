@@ -33,7 +33,7 @@ bool ParseRTSPUrl(const std::string& rtsp_url, RTSPUrlInfo& url_info) {
         } else {
             url_info.username = user_pass;
         }
-        iss.seekg(pos + at_pos + 1);
+        iss.seekg(pos + static_cast<std::streamoff>(at_pos + 1));
     }
     
     pos = iss.tellg();
@@ -181,45 +181,4 @@ std::string GenerateAuthResponse(const char *username, const char *password, con
     }
     response = res_hex;
     return response;
-}
-int GetSampleRateIndex(int freq){
-
-    int i = 0;
-    int freq_arr[13] = {
-        96000, 88200, 64000, 48000, 44100, 32000,
-        24000, 22050, 16000, 12000, 11025, 8000, 7350
-    };
-    for(i = 0; i < 13; i++){
-        if(freq == freq_arr[i]){
-            return i;
-        }
-    }
-    return 4;// The default is 44100
-}
-void AdtsHeader(char *adts_header_buffer, int data_len, int profile, int sample_rate_index, int channels){
-    int adts_len = data_len + 7;
-
-    adts_header_buffer[0] = 0xff;         //syncword:0xfff                          high 8bits
-    adts_header_buffer[1] = 0xf0;         //syncword:0xfff                          low 4bits
-    adts_header_buffer[1] |= (0 << 3);    //MPEG Version:0 for MPEG-4,1 for MPEG-2  1bit
-    adts_header_buffer[1] |= (0 << 1);    //Layer:0                                 2bits
-    adts_header_buffer[1] |= 1;           //protection absent:1                     1bit
-
-    adts_header_buffer[2] = (profile)<<6;            //profile:audio_object_type - 1                      2bits
-    adts_header_buffer[2] |= (sample_rate_index & 0x0f)<<2; //sampling frequency index:sampling_frequency_index  4bits
-    adts_header_buffer[2] |= (0 << 1);                             //private bit:0                                      1bit
-    adts_header_buffer[2] |= (channels & 0x04)>>2;           //channel configuration:channel_config               高1bit
-
-    adts_header_buffer[3] = (channels & 0x03)<<6;     //channel configuration:channel_config      low 2bits
-    adts_header_buffer[3] |= (0 << 5);                      //original：0                               1bit
-    adts_header_buffer[3] |= (0 << 4);                      //home：0                                   1bit
-    adts_header_buffer[3] |= (0 << 3);                      //copyright id bit：0                       1bit
-    adts_header_buffer[3] |= (0 << 2);                      //copyright id start：0                     1bit
-    adts_header_buffer[3] |= ((adts_len & 0x1800) >> 11);           //frame length：value   high 2bits
-
-    adts_header_buffer[4] = (uint8_t)((adts_len & 0x7f8) >> 3);     //frame length:value    middle 8bits
-    adts_header_buffer[5] = (uint8_t)((adts_len & 0x7) << 5);       //frame length:value    low 3bits
-    adts_header_buffer[5] |= 0x1f;                                 //buffer fullness:0x7ff high 5bits
-    adts_header_buffer[6] = 0xfc;
-    return;
 }

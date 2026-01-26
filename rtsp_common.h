@@ -95,6 +95,4 @@ char *GetLineFromBuf(char *buf, char *line, int buf_len);
 int ParseRTSPMessage(const std::string& rtsp_message, struct ResponseMessage &response);
 std::string GetValueByKey(const std::vector<std::pair<std::string, std::string>>& headers, std::string key);
 std::string GenerateAuthResponse(const char *username, const char *password, const char *realm, const char *nonce, const char *uri, const char * method);
-int GetSampleRateIndex(int freq);
-void AdtsHeader(char *adts_header_buffer, int data_len, int profile, int sample_rate_index, int channels); // profile from sdp
 #endif

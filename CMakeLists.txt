@@ -8,7 +8,7 @@ aux_source_directory(./3rdparty 3RD)
 
 
 set(EXECUTABLE_OUTPUT_PATH ./)
-add_compile_options(-g -std=c++11)
+add_compile_options(-g)
 set(CMAKE_BUILD_TYPE Release)
 
 add_executable(rtsp_client ${SRC} ${RTP} ${3RD})

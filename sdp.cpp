@@ -319,7 +319,18 @@ int SDPParse::ParseAudio(){
     }
     else{
         sdp_info_.media_info[1].profile = 1;
-        sdp_info_.media_info[1].sample_rate_index = GetSampleRateIndex(sdp_info_.media_info[1].sample_rate);
+        int sample_rate_index = 4; // The default is 44100
+        int freq_arr[13] = {
+            96000, 88200, 64000, 48000, 44100, 32000,
+            24000, 22050, 16000, 12000, 11025, 8000, 7350
+        };
+        for(int i = 0; i < 13; i++){
+            if(sdp_info_.media_info[1].sample_rate == freq_arr[i]){
+                sample_rate_index = i;
+                break;
+            }
+        }
+        sdp_info_.media_info[1].sample_rate_index = sample_rate_index;
     }
     return 0;
 }
