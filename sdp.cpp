@@ -62,98 +62,66 @@ int SDPParse::Parse(){
     return 0;
 }
 std::string SDPParse::GetVideoUrl(){
-    if(sdp_info_.media_info[0].media_type !=  MediaEnum::NONE){
-        if(sdp_info_.contorl == std::string("*")){
-            // base_url_ : rtsp://192.168.0.63/media or rtsp://192.168.0.63/media/
-            // session a=*
-            // meida a=control:rtsp://192.168.0.63/media/trackID=1
-            // meida a=control:rtsp://192.168.0.63/media/?<args>/trackID=1
-            // meida a=control:rtsp://192.168.0.63/media/trackID=1?<args>
-            if(sdp_info_.media_info[0].contorl.size() > base_url_.size()){
-                return sdp_info_.media_info[0].contorl;
-            }
-            // base_url_ : rtsp://192.168.0.63/media or rtsp://192.168.0.63/media/
-            // session a=*
-            // meida a=trackID=1
-            std::string url;
-            char ch = base_url_[base_url_.size()-1];
-            if(ch != '/'){
-                url = base_url_ + std::string("/");
-            }
-            else{
-                url = base_url_;
-            }
-            return url + sdp_info_.media_info[0].contorl;
-        }
-        else{  
-            // session a=control:rtsp://192.168.0.63/media or rtsp://192.168.0.63/media/
-            // meida a=control:rtsp://192.168.0.63/media/trackID=1
-            // meida a=control:rtsp://192.168.0.63/media/?<args>/trackID=1
-            // meida a=control:rtsp://192.168.0.63/media/trackID=1?<args>
-            if(sdp_info_.media_info[0].contorl.size() > sdp_info_.contorl.size()){
-                return sdp_info_.media_info[0].contorl;
-            }
-            // session a=control:rtsp://192.168.0.63/media or rtsp://192.168.0.63/media/
-            // meida a=trackID=1
-            std::string url;
-            char ch = sdp_info_.contorl[sdp_info_.contorl.size()-1];
-            if(ch != '/'){
-                url = sdp_info_.contorl + std::string("/");
-            }
-            else{
-                url = sdp_info_.contorl;
-            }
-            return url + sdp_info_.media_info[0].contorl;
-        }
+    if(sdp_info_.media_info[0].media_type == MediaEnum::NONE){
+        return "";
     }
-    return "";
+    std::string contorl = sdp_info_.media_info[0].contorl;
+    if(contorl.rfind("rtsp://", 0) == 0){
+        return contorl;
+    }
+    std::string url_media;
+    if(contorl[0] != '/'){
+        url_media = contorl;
+    }
+    else{
+        url_media = contorl.substr(1);
+    }
+    std::string url_base_orig, url_base;
+    if(sdp_info_.contorl == std::string("*")){
+        url_base_orig = base_url_;
+    }
+    else{
+        url_base_orig = sdp_info_.contorl;
+    }
+    char ch = url_base_orig[url_base_orig.size() - 1];
+    if(ch != '/'){
+        url_base = url_base_orig + std::string("/");
+    }
+    else{
+        url_base = url_base_orig;
+    }
+    return url_base + url_media;
 }
 std::string SDPParse::GetAudioUrl(){
-    if(sdp_info_.media_info[1].media_type !=  MediaEnum::NONE){
-        if(sdp_info_.contorl == std::string("*")){
-            // base_url_ : rtsp://192.168.0.63/media or rtsp://192.168.0.63/media/
-            // session a=*
-            // meida a=control:rtsp://192.168.0.63/media/trackID=0
-            // meida a=control:rtsp://192.168.0.63/media/?<args>/trackID=0
-            // meida a=control:rtsp://192.168.0.63/media/trackID=0?<args>
-            if(sdp_info_.media_info[1].contorl.size() > base_url_.size()){
-                return sdp_info_.media_info[1].contorl;
-            }
-            // base_url_ : rtsp://192.168.0.63/media or rtsp://192.168.0.63/media/
-            // session a=*
-            // meida a=trackID=0
-            std::string url;
-            char ch = base_url_[base_url_.size()-1];
-            if(ch != '/'){
-                url = base_url_ + std::string("/");
-            }
-            else{
-                url = base_url_;
-            }
-            return url + sdp_info_.media_info[1].contorl;
-        }
-        else{
-            // session a=control:rtsp://192.168.0.63/media or rtsp://192.168.0.63/media/
-            // meida a=control:rtsp://192.168.0.63/media/trackID=0
-            // meida a=control:rtsp://192.168.0.63/media/?<args>/trackID=0
-            // meida a=control:rtsp://192.168.0.63/media/trackID=0?<args>
-            if(sdp_info_.media_info[1].contorl.size() > sdp_info_.contorl.size()){
-                return sdp_info_.media_info[1].contorl;
-            }
-            // session a=control:rtsp://192.168.0.63/media or rtsp://192.168.0.63/media/
-            // meida a=trackID=0
-            std::string url;
-            char ch = sdp_info_.contorl[sdp_info_.contorl.size()-1];
-            if(ch != '/'){
-                url = sdp_info_.contorl + std::string("/");
-            }
-            else{
-                url = sdp_info_.contorl;
-            }
-            return url + sdp_info_.media_info[1].contorl;
-        }
+    if(sdp_info_.media_info[1].media_type == MediaEnum::NONE){
+        return "";
     }
-    return "";
+    std::string contorl = sdp_info_.media_info[1].contorl;
+    if(contorl.rfind("rtsp://", 0) == 0){
+        return contorl;
+    }
+    std::string url_media;
+    if(contorl[0] != '/'){
+        url_media = contorl;
+    }
+    else{
+        url_media = contorl.substr(1);
+    }
+    std::string url_base_orig, url_base;
+    if(sdp_info_.contorl == std::string("*")){
+        url_base_orig = base_url_;
+    }
+    else{
+        url_base_orig = sdp_info_.contorl;
+    }
+    char ch = url_base_orig[url_base_orig.size() - 1];
+    if(ch != '/'){
+        url_base = url_base_orig + std::string("/");
+    }
+    else{
+        url_base = url_base_orig;
+    }
+    return url_base + url_media;
 }
 /*
 v=0
